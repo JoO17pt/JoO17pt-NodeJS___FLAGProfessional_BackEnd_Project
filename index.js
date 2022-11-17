@@ -7,6 +7,7 @@ const session = require("express-session");
 
 const users = require('./routes/users');
 const products = require('./routes/products');
+const Category = require("./models/Category");
 
 // 2. Database Connection ===================================================================
 
@@ -49,9 +50,14 @@ app.use(express.static('public'));
 app.use("/user/",users);
 app.use("/product/",products);
 
-app.get("/",function(req,res){
-    req.session.user != undefined ? user = req.session.user : user = null;
-    res.render("home",{user: user});
-});
+global.sessionUser = null;
+global.sessionCategories = "";
+
+Category.findAll().then((categories) => {
+    sessionCategories = categories;
+    app.get("/",function(req,res){
+        res.render("home",{user: sessionUser, categories: sessionCategories});
+    });
+  }); 
 
 app.listen(process.env.PORT,()=>{console.log("Servidor ativo!");});

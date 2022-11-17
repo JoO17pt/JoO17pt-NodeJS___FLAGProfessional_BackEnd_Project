@@ -1,11 +1,16 @@
 const express = require("express");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const Product = require("../models/Product");
+const Category = require("../models/Category");
 
 exports.register = (req, res) => {
   switch (req.method) {
     case "GET":
-      res.render("users/register");
+      res.render("users/register", {
+        user: sessionUser,
+        categories: sessionCategories,
+      });
       break;
     case "POST":
       User.findOne({ where: { email: req.body.email } }).then((user) => {
@@ -26,7 +31,10 @@ exports.register = (req, res) => {
             picture: picture,
           })
             .then(() => {
-              res.render("users/login");
+              res.render("users/login", {
+                user: sessionUser,
+                categories: sessionCategories,
+              });
             })
             .catch((err) => {
               res.send("Importação falhou");
@@ -41,7 +49,10 @@ exports.register = (req, res) => {
 
 exports.login = (req, res) => {
   if (req.method == "GET") {
-    res.render("users/login");
+    res.render("users/login", {
+      user: sessionUser,
+      categories: sessionCategories,
+    });
   } else {
     var email = req.body.email;
     var password = req.body.password;
@@ -51,11 +62,14 @@ exports.login = (req, res) => {
         var correct = bcrypt.compareSync(password, user.password);
 
         if (correct) {
-          req.session.user = {
+          sessionUser = {
             id: user.id,
             name: user.name,
             email: user.email,
           };
+
+          req.session.user = sessionUser;
+
           res.redirect("/");
         } else {
           res.redirect("/user/login");
@@ -69,6 +83,7 @@ exports.login = (req, res) => {
 
 exports.logout = (req, res) => {
   req.session.destroy();
+  global.sessionUser = null;
   res.redirect("/");
 };
 
@@ -80,7 +95,10 @@ exports.profile = (req, res) => {
   User.findByPk(req.params.id)
     .then((user) => {
       if (user != undefined) {
-        res.render("users/profile", { user: user.dataValues });
+        res.render("users/profile", {
+          user: user.dataValues,
+          categories: sessionCategories,
+        });
       } else {
         res.redirect("/");
       }
@@ -97,7 +115,10 @@ exports.update = (req, res) => {
         res.redirect("/");
       } else {
         User.findOne({ where: { id: req.params.id } }).then((user) => {
-          res.render("users/update", { user: user });
+          res.render("users/update", {
+            user: user,
+            categories: sessionCategories,
+          });
         });
       }
       break;
@@ -137,9 +158,68 @@ exports.update = (req, res) => {
               }
             );
           }
-          res.redirect(""+req.session.user.id);
+          res.redirect("" + req.session.user.id);
         });
       }
       break;
+  }
+};
+
+exports.products = (req, res) => {
+  if (req.session.user.id !== Number(req.params.id)) {
+    res.redirect("/");
+  } else if (
+    req.query.category !== undefined &&
+    req.query.category !== null &&
+    (req.query.active == undefined || req.query.active == null)
+  ) {
+    Product.findAll({
+      where: { userId: req.params.id, categoryId: req.query.category },
+      include: Category,
+      order: [
+        ['active', 'DESC'],
+        ['updatedAt', 'DESC']
+      ]
+    }).then((products) => {
+      res.render("users/products", {
+        products: products,
+        user: sessionUser,
+        categories: sessionCategories,
+      });
+    });
+  } else if (
+    req.query.active !== undefined &&
+    req.query.active !== null &&
+    (req.query.category == undefined || req.query.category == null)
+  ) {
+    Product.findAll({
+      where: { userId: req.params.id, active: req.query.active },
+      include: Category,
+      order: [
+        ['active', 'DESC'],
+        ['updatedAt', 'DESC']
+      ]
+    }).then((products) => {
+      res.render("users/products", {
+        products: products,
+        user: sessionUser,
+        categories: sessionCategories,
+      });
+    });
+  } else {
+    Product.findAll({
+      where: { userId: req.params.id },
+      include: Category,
+      order: [
+        ['active', 'DESC'],
+        ['updatedAt', 'DESC']
+      ]
+    }).then((products) => {
+      res.render("users/products", {
+        products: products,
+        user: sessionUser,
+        categories: sessionCategories,
+      });
+    });
   }
 };

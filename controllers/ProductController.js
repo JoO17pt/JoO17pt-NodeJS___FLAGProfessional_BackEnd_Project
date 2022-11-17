@@ -8,7 +8,7 @@ exports.newProduct = (req, res) => {
       Category.findAll().then((categories) => {
         categories.forEach((element) => {});
         res.render("products/new", {
-          user: req.session.user.id,
+          user: sessionUser,
           categories: categories,
         });
       });
@@ -30,7 +30,7 @@ exports.newProduct = (req, res) => {
           categoryId: req.body.category,
         })
           .then(() => {
-            res.send("Importação concluida");
+            res.redirect("/user/"+req.session.user.id+"/products");
           })
           .catch((err) => {
             res.send("Importação falhou");
@@ -46,7 +46,9 @@ exports.delProduct = (req, res) => {
       if (product.userId !== req.session.user.id || product === undefined) {
         res.redirect("/");
       } else {
-        Product.destroy({ where: { id: product.id } });
+        Product.update(
+          { active: false},
+          { where: { id: product.id } });
         res.send("Remoção concluída");
       }
     })

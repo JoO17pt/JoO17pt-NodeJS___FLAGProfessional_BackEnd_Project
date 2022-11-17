@@ -1,0 +1,50 @@
+<%- include('../partials/header.ejs') %>
+<body>
+  <div class="container">
+    <hr />
+    <hr />
+    <div class="card mt-5">
+      <div class="card-header">
+        <h2>My Products</h2>
+      </div>
+      <hr />
+      <%- include('../partials/navbar.ejs') %> <% products.forEach(product => {
+      %>
+
+      <div class="card mb-4" style="width: 90%; margin: auto">
+        <div class="row g-0">
+          <div class="col-md-2">
+            <img src="http://localhost:4000/productPics/<%=product.picture ==
+            null ? "no_image.png": product.picture.trim()%>" class="img-fluid
+            rounded-start" alt="..." style="max-width: 175px"/>
+          </div>
+          <div class="col-md-9">
+            <div class="card-body">
+              <h5 class="card-title"><%= product.title %></h5>
+              <p class="card-text">
+                <strong>Category: </strong><%=
+                product.dataValues.category.dataValues.title %>
+              </p>
+              <p class="card-text">
+                <strong>Description: </strong><%= product.description %>
+              </p>
+              <p class="card-text">
+                <small class="text-muted"
+                  >Updated at: <%= product.updatedAt %></small
+                >
+              </p>
+            </div>
+          </div>
+          <div class="col-md-1">
+            <% if ( product.active === true) {%>
+            <a href="http://localhost:4000/product/delete/<%= product.id %>">Disable</a>
+            <%}%>
+          </div>
+        </div>
+      </div>
+
+      <% }) %>
+    </div>
+  </div>
+  <%- include('../partials/footer.ejs') %>
+</body>

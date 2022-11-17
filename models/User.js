@@ -1,5 +1,7 @@
 const Sequelize = require("sequelize");
 const connection = require("../database/database");
+const Deal = require("./Deal");
+const DealUser = require("./DealUser");
 
 const User = connection.define('users',{
     email:{
@@ -22,6 +24,9 @@ const User = connection.define('users',{
      }
 })
 
-// User.sync({force: true});
+User.belongsToMany(Deal, { through: DealUser });
+Deal.belongsToMany(User, { through: DealUser });
+
+// connection.sync({force: true});
 
 module.exports = User

@@ -1,6 +1,8 @@
 <%- include('../partials/header.ejs') %>
 <body>
+  <%- include('../partials/navbar.ejs') %>
   <div class="container">
+    <hr />
     <hr />
     <div class="card mt-5">
       <div class="card-header">
@@ -12,7 +14,7 @@
             class="form-control"
             name="user"
             type="number"
-            value="<%=user%>"
+            value="<%=user.id%>"
             hidden
           /><br />
           <input
@@ -35,12 +37,11 @@
           </select>
           <br />
           <input class="form-control" name="picture" type="file" /><br />
-          <button type="submit" class="btn btn-success btn-block">
+          <button type="submit" class="btn btn-dark btn-block">
             Register
           </button>
         </form>
       </div>
     </div>
   </div>
-</body>
 <%- include('../partials/footer.ejs') %>

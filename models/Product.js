@@ -13,6 +13,10 @@ const Product = connection.define('products',{
     },picture: {
         type: Sequelize.STRING,
         allowNull: true
+     },active: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+        allowNull: false
      }
 })
 
@@ -21,7 +25,5 @@ Product.belongsTo(User);
 
 Category.hasMany(Product);
 Product.belongsTo(Category);
-
-// Product.sync({force: true});
 
 module.exports = Product

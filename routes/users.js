@@ -4,7 +4,7 @@ const router = express.Router();
 const upload = require("../middlewares/uploadPicture");
 const sessionInit = require("../middlewares/sessionInit");
 
-const {register, login, logout, profile, update} = require('../controllers/UserController');
+const {register, login, logout, profile, update, products} = require('../controllers/UserController');
 
 router.get("/register", register);
 router.post("/register", upload.single('picture'), register)
@@ -18,5 +18,7 @@ router.post("/login", login);
 router.get("/logout", logout);
 
 router.get("/:id", sessionInit, profile);
+
+router.get("/:id/products", sessionInit, products);
 
 module.exports = router;
