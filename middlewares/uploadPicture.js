@@ -18,11 +18,21 @@ function generateString(length) {
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './storage/profilePics/')
+      switch (req.originalUrl) {
+        case "/user/register":
+          cb(null, './public/profilePics/')
+          break;
+        case "/user/update":
+          cb(null, './public/profilePics/')
+          break;
+        case "/product/new":
+          cb(null, './public/productPics/')
+          break;
+      }
     },
     filename: function (req, file, cb) {
       const file_type = file.mimetype.substring(file.mimetype.indexOf('/')+1)
-      cb(null, generateString(30) + '.' + file_type)
+      cb(null, (generateString(30) + '.' + file_type).trim())
     }
   })
   

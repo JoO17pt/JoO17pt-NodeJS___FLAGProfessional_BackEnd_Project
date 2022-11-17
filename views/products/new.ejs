@@ -1,0 +1,46 @@
+<%- include('../partials/header.ejs') %>
+<body>
+  <div class="container">
+    <hr />
+    <div class="card mt-5">
+      <div class="card-header">
+        <h2>Create New Product</h2>
+      </div>
+      <div class="card-body">
+        <form action="/product/new" method="POST" enctype="multipart/form-data">
+          <input
+            class="form-control"
+            name="user"
+            type="number"
+            value="<%=user%>"
+            hidden
+          /><br />
+          <input
+            class="form-control"
+            name="title"
+            type="text"
+            placeholder="Title"
+          /><br />
+          <input
+            class="form-control"
+            name="description"
+            type="text"
+            placeholder="Description"
+          /><br />
+          <select class="form-select" aria-label="Default select example" name="category">
+            <option selected>Category</option>
+            <% categories.forEach(category => {%>
+            <option value="<%=category.dataValues.id%>"><%=category.dataValues.title%></option>
+            <%})%>
+          </select>
+          <br />
+          <input class="form-control" name="picture" type="file" /><br />
+          <button type="submit" class="btn btn-success btn-block">
+            Register
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+<%- include('../partials/footer.ejs') %>

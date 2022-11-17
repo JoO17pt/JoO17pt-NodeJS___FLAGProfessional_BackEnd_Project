@@ -6,6 +6,7 @@ const connection = require("./database/database");
 const session = require("express-session");
 
 const users = require('./routes/users');
+const products = require('./routes/products');
 
 // 2. Database Connection ===================================================================
 
@@ -23,22 +24,11 @@ app.use(session({
     secret: "backendproject", 
     resave: true,
     saveUninitialized: true,
-    cookie: { maxAge: 300000 }
+    cookie: { maxAge: 3000000000 }
 }))
 
-// app.get("/session",function(req,res){
-//     req.session.nome="Fernando";
-//     req.session.ano="1974";
-//     req.session.user= {
-//         username: "flira",
-//         email:"it.fernandolira@gmail.com",
-//         id:5
-//     }
-//     res.send("Ok");
-// });
-
 app.get("/leitura",function(req,res){
-    res.json({nome: req.session});
+    res.json({name: req.session});
 });
 
 
@@ -54,12 +44,14 @@ app.use(express.urlencoded({
   extended: true
 }));
 
-
+app.use(express.static('public')); 
 
 app.use("/user/",users);
+app.use("/product/",products);
 
 app.get("/",function(req,res){
-    res.send("Home Page");
+    req.session.user != undefined ? user = req.session.user : user = null;
+    res.render("home",{user: user});
 });
 
 app.listen(process.env.PORT,()=>{console.log("Servidor ativo!");});
