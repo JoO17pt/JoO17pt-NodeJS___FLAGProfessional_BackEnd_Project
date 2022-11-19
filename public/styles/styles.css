@@ -5,3 +5,9 @@
 hr {
     color:aliceblue
 }
+
+.addRemoveButton {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}

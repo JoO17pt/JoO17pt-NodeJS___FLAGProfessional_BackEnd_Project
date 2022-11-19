@@ -7,6 +7,8 @@ const session = require("express-session");
 
 const users = require('./routes/users');
 const products = require('./routes/products');
+const deals = require('./routes/deals');
+
 const Category = require("./models/Category");
 
 // 2. Database Connection ===================================================================
@@ -49,6 +51,8 @@ app.use(express.static('public'));
 
 app.use("/user/",users);
 app.use("/product/",products);
+app.use("/product/",products);
+app.use("/deal/",deals);
 
 global.sessionUser = null;
 global.sessionCategories = "";
