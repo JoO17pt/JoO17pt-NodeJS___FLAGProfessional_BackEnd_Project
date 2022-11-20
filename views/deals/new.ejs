@@ -1,4 +1,5 @@
 <%- include('../partials/header.ejs') %>
+
 <body>
   <%- include('../partials/navbar.ejs') %>
   <div class="container">
@@ -7,137 +8,112 @@
 
     <div class="row">
       <div class="col-md-6">
-    <!-- ================================================================ -->
-    <div class="card mt-5">
-      <div class="card-header">
-        <h2>My Products</h2>
-      </div>
-      <hr />
-      <% products.forEach(product => {
+        <div class="card mt-5">
+          <div class="card-header">
+            <h2>My Products</h2>
+          </div>
+          <br />
+          <% products.forEach(product => {
         if (product.userId == user.id) {
       %>
 
-      <div class="card mb-4" style="width: 90%; margin: auto">
-        <div class="row g-0" product="<%=product.id%>" owner="<%=product.userId%>">
-          <div class="col-md-4">
-            <img src="http://localhost:4000/productPics/<%=product.picture ==
+          <div class="card mb-4" style="width: 90%; margin: auto">
+            <div class="row g-0" product="<%=product.id%>" owner="<%=product.userId%>">
+              <div class="col-md-4">
+                <img src="http://localhost:4000/productPics/<%=product.picture ==
             null ? "no_image.png": product.picture.trim()%>" class="img-fluid
-            rounded-start" alt="..." style="max-width: 175px"/>
+            rounded-start" alt="..." style="max-width: 175px" />
 
-            <button class="btn btn-dark btn-block addRemoveButton">
-              +
-            </button>
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title"><%= product.title %></h5>
-              <p class="card-text">
-                <strong>Category: </strong><%=
+                <button class="btn btn-dark btn-block addRemoveButton">
+                  +
+                </button>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title"><%= product.title %></h5>
+                  <p class="card-text">
+                    <strong>Category: </strong><%=
                 product.dataValues.category.dataValues.title %>
-              </p>
-              <p class="card-text">
-                <strong>Description: </strong><%= product.description %>
-              </p>
-              <p class="card-text">
-                <small class="text-muted"
-                  >Updated at: <%= product.updatedAt %></small
-                >
-              </p>
+                  </p>
+                  <p class="card-text">
+                    <strong>Description: </strong><%= product.description %>
+                  </p>
+                  <p class="card-text">
+                    <small class="text-muted">Updated at: <%= product.updatedAt %></small>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
+
+          <% }}) %>
         </div>
       </div>
-
-      <% }}) %>
-    </div>
-    <!-- ================================================================ -->
-  </div>
-  <div class="col-md-6">
-    <!-- ================================================================ -->
-    <div class="card mt-5">
-      <div class="card-header">
-        <h2><%= otherUser.name %></h2>
-      </div>
-      <hr />
-      <% products.forEach(product => {
+      <div class="col-md-6">
+        <div class="card mt-5">
+          <div class="card-header">
+            <h2><%= otherUser.name %></h2>
+          </div>
+          <hr />
+          <% products.forEach(product => {
         if (product.userId !== user.id) {
       %>
 
-      <div class="card mb-4" style="width: 90%; margin: auto">
-        <div class="row g-0" product="<%=product.id%>" owner="<%=product.userId%>">
-          <div class="col-md-4">
-            <img src="http://localhost:4000/productPics/<%=product.picture ==
+          <div class="card mb-4" style="width: 90%; margin: auto">
+            <div class="row g-0" product="<%=product.id%>" owner="<%=product.userId%>">
+              <div class="col-md-4">
+                <img src="http://localhost:4000/productPics/<%=product.picture ==
             null ? "no_image.png": product.picture.trim()%>" class="img-fluid
-            rounded-start" alt="..." style="max-width: 175px"/>
+            rounded-start" alt="..." style="max-width: 175px" />
 
-            <button class="btn btn-dark btn-block addRemoveButton">
-              +
-            </button>
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title"><%= product.title %></h5>
-              <p class="card-text">
-                <strong>Category: </strong><%=
+                <button class="btn btn-dark btn-block addRemoveButton">
+                  +
+                </button>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title"><%= product.title %></h5>
+                  <p class="card-text">
+                    <strong>Category: </strong><%=
                 product.dataValues.category.dataValues.title %>
-              </p>
-              <p class="card-text">
-                <strong>Description: </strong><%= product.description %>
-              </p>
-              <p class="card-text">
-                <small class="text-muted"
-                  >Updated at: <%= product.updatedAt %></small
-                >
-              </p>
+                  </p>
+                  <p class="card-text">
+                    <strong>Description: </strong><%= product.description %>
+                  </p>
+                  <p class="card-text">
+                    <small class="text-muted">Updated at: <%= product.updatedAt %></small>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
+
+          <% }}) %>
         </div>
       </div>
-
-      <% }}) %>
     </div>
-    <!-- ================================================================ -->
-  </div>
-  </div>
-  <hr />
+    <br />
 
-  <form action="/deal/new" method="POST">
-    <input
-            name="owner"
-            type="number"
-            value="<%=user.id%>"
-            hidden
-      />
-    <input
-            name="other"
-            type="number"
-            value="<%=otherUser.id%>"
-            hidden
-      />
-    <input
-            id="productArray"
-            name="products"
-            type="text"
-            value=""
-            hidden
-      />
-    <button id="submitButton" type="submit" class="btn btn-dark btn-block" disabled>
-      Submit Deal
-    </button>
-  </form>
+    <form action="/deal/new" method="POST">
+      <input name="owner" type="number" value="<%=user.id%>" hidden />
+      <input name="other" type="number" value="<%=otherUser.id%>" hidden />
+      <input id="productArray" name="products" type="text" value="" hidden />
+      <button id="submitButton" type="submit" class="btn btn-dark btn-block" disabled>
+        Submit Deal
+      </button>
+    </form>
 
   </div>
   <script>
-    
     const buttons = document.querySelectorAll(".addRemoveButton");
     const submitButton = document.querySelector("#submitButton");
     const inputProduct = document.querySelector("#productArray");
-    
+
     let userArray = [];
     let productsArray = [];
 
     buttons.forEach(button => {
-      button.addEventListener("click", e=> {
+      button.addEventListener("click", e => {
 
         var user = Number(button.parentElement.parentElement.getAttribute('owner'));
         var product = Number(button.parentElement.parentElement.getAttribute('product'));
@@ -146,33 +122,32 @@
           case "+":
             productsArray.push(product);
             userArray.push(user);
-            inputProduct.setAttribute("value",productsArray)
+            inputProduct.setAttribute("value", productsArray)
 
             if (userArray.indexOf(<%=user.id%>) !== -1 && userArray.indexOf(<%=otherUser.id%>) !== -1) {
               submitButton.removeAttribute("disabled");
-              } else {
-                submitButton.setAttribute("disabled","");
-              };
+            } else {
+              submitButton.setAttribute("disabled", "");
+            };
 
             button.innerText = "-";
-          break;
+            break;
           case "-":
-            productsArray.splice(productsArray.indexOf(product),1);
-            userArray.splice(userArray.indexOf(user),1);
-            inputProduct.setAttribute("value",productsArray);
+            productsArray.splice(productsArray.indexOf(product), 1);
+            userArray.splice(userArray.indexOf(user), 1);
+            inputProduct.setAttribute("value", productsArray);
 
             if (userArray.indexOf(<%=user.id%>) !== -1 && userArray.indexOf(<%=otherUser.id%>) !== -1) {
               submitButton.removeAttribute("disabled");
-              } else {
-                submitButton.setAttribute("disabled","");
-              };
+            } else {
+              submitButton.setAttribute("disabled", "");
+            };
 
             button.innerText = "+";
-          break;
+            break;
         }
       })
     })
-     
   </script>
   <%- include('../partials/footer.ejs') %>
 </body>

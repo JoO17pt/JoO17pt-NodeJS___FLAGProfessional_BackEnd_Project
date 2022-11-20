@@ -27,6 +27,9 @@ const User = connection.define('users',{
 User.belongsToMany(Deal, { through: DealUser });
 Deal.belongsToMany(User, { through: DealUser });
 
+// User.hasMany(DealUser);
+// DealUser.belongsTo(User);
+
 // connection.sync({force: true});
 
 module.exports = User

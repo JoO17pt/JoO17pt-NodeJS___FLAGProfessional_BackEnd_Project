@@ -54,13 +54,12 @@ app.use("/product/",products);
 app.use("/product/",products);
 app.use("/deal/",deals);
 
-global.sessionUser = null;
 global.sessionCategories = "";
 
 Category.findAll().then((categories) => {
     sessionCategories = categories;
     app.get("/",function(req,res){
-        res.render("home",{user: sessionUser, categories: sessionCategories});
+        res.render("home",{user: req.session.user, categories: sessionCategories});
     });
   }); 
 

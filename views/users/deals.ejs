@@ -1,0 +1,121 @@
+<%- include('../partials/header.ejs') %>
+
+<body>
+  <%- include('../partials/navbar.ejs') %>
+
+  <div class="container">
+    <br />
+    <%if(deals.length==0) {%>
+    <br />
+    <br />
+    <h4>No deals available.</h4>
+    <%} else {%>
+    <% deals[0].deals.forEach(deal => {%>
+    <div class="card mt-5">
+      <div class="card-header">
+        <%if ( deal.dataValues.users[0].dataValues.id === user.id ) {%>
+        <h4>Deal with <%=deal.dataValues.users[1].dataValues.name%> from <%=deal.dataValues.updatedAt%></h4>
+        <%} else {%>
+        <h4>Deal with <%=deal.dataValues.users[0].dataValues.name%> from <%=deal.dataValues.updatedAt%></h4>
+        <%}%>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <%deal.dataValues.dealProducts.forEach(product => {
+                    if (product.dataValues.product.dataValues.userId === user.id) {
+                    %>
+        <%}})%>
+        <div class="card mt-5">
+          <div class="card-header">
+            <h2>You Give</h2>
+          </div>
+          <br />
+          <% deal.dataValues.dealProducts.forEach(product => {
+    if (product.dataValues.product.dataValues.userId === user.id) {
+    %>
+          <div class="card mb-4" style="width: 90%; margin: auto">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="http://localhost:4000/productPics/<%=product.dataValues.product.dataValues.picture ==
+            null ? "no_image.png": product.dataValues.product.dataValues.picture.trim()%>" class="img-fluid
+            rounded-start" alt="..." style="max-width: 175px" />
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title"><%= product.dataValues.product.dataValues.title %></h5>
+                  <p class="card-text">
+                    <strong>Description: </strong><%= product.dataValues.product.dataValues.description %>
+                  </p>
+                  <p class="card-text">
+                    <small class="text-muted">Updated at: <%= product.dataValues.product.dataValues.updatedAt %></small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <% }}) %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <%deal.dataValues.dealProducts.forEach(product => {
+                    if (product.dataValues.product.dataValues.userId !== user.id) {
+                    %>
+        <%}})%>
+        <div class="card mt-5">
+          <div class="card-header">
+            <h2>You Get</h2>
+          </div>
+          <br />
+          <% deal.dataValues.dealProducts.forEach(product => {
+    if (product.dataValues.product.dataValues.userId !== user.id) {
+    %>
+          <div class="card mb-4" style="width: 90%; margin: auto">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="http://localhost:4000/productPics/<%=product.dataValues.product.dataValues.picture ==
+            null ? "no_image.png": product.dataValues.product.dataValues.picture.trim()%>" class="img-fluid
+            rounded-start" alt="..." style="max-width: 175px" />
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title"><%= product.dataValues.product.dataValues.title %></h5>
+                  <p class="card-text">
+                    <strong>Description: </strong><%= product.dataValues.product.dataValues.description %>
+                  </p>
+                  <p class="card-text">
+                    <small class="text-muted">Updated at: <%= product.dataValues.product.dataValues.updatedAt %></small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <% }}) %>
+        </div>
+      </div>
+
+      <%if (route == "/deals/received") {%>
+      <div class="row">
+        <form action="http://localhost:4000/deal/accept/<%=deal.dataValues.id%>" method="POST">
+          <button type="submit" class="btn btn-dark btn-block">Accept</button>
+        </form>
+        <form action="http://localhost:4000/deal/decline/<%=deal.dataValues.id%>" method="POST">
+          <button type="submit" class="btn btn-dark btn-block">Reject</button>
+        </form>
+      </div>
+      <%}%>
+
+      <%if (route == "/deals/sent") {%>
+      <div class="row">
+        <form action="http://localhost:4000/deal/decline/<%=deal.dataValues.id%>" method="POST">
+          <button type="submit" class="btn btn-dark btn-block">Cancel</button>
+        </form>
+      </div>
+      <%}%>
+    </div>
+    <br />
+  </div>
+  <%})%>
+  <%}%>
+  </div>
+  <%-include('../partials/footer.ejs') %>
+</body>

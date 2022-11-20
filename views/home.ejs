@@ -10,10 +10,8 @@
     <h1>Home Page</h1>
     <hr />
 
-    <% if (user !== null) { %>
-
-      <h2>Welcome <%= user.name %></h2>
-
+    <% if (user !== undefined) { %>
+    <h2>Welcome <%= user.name %></h2>
     <% } %>
   </div>
 </body>

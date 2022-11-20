@@ -1,16 +1,15 @@
 const express = require("express");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
+const DealProduct = require("../models/DealProducts");
+const Deal = require("../models/Deal");
 
 exports.newProduct = (req, res) => {
   switch (req.method) {
     case "GET":
-      Category.findAll().then((categories) => {
-        categories.forEach((element) => {});
-        res.render("products/new", {
-          user: sessionUser,
-          categories: categories,
-        });
+      res.render("products/new", {
+        user: req.session.user,
+        categories: sessionCategories,
       });
       break;
     case "POST":
@@ -30,7 +29,7 @@ exports.newProduct = (req, res) => {
           categoryId: req.body.category,
         })
           .then(() => {
-            res.redirect("/user/"+req.session.user.id+"/products");
+            res.redirect("/user/" + req.session.user.id + "/products");
           })
           .catch((err) => {
             res.send("Importação falhou");
@@ -46,10 +45,29 @@ exports.delProduct = (req, res) => {
       if (product.userId !== req.session.user.id || product === undefined) {
         res.redirect("/");
       } else {
-        Product.update(
-          { active: false},
-          { where: { id: product.id } });
-        res.send("Remoção concluída");
+        Product.update({ active: false }, { where: { id: product.id } }).then(
+          () => {
+            DealProduct.findAll({
+              where: { productId: req.params.id },
+            }).then((deals) => {
+              var dealsOthers = [];
+              deals.forEach((deal) => {
+                dealsOthers.push(deal.dataValues.dealId);
+              });
+              Deal.update(
+                { status: "Canceled" },
+                {
+                  where: {
+                    id: dealsOthers,
+                    status: "Open",
+                  },
+                }
+              ).then(() => {
+                res.send("Remoção concluída");
+              });
+            });
+          }
+        );
       }
     })
     .catch((erro) => {
@@ -63,15 +81,19 @@ exports.showProducts = (req, res) => {
       res.render("products/products", { products: products });
     });
   } else if (req.query.user === undefined) {
-    Product.findAll({ where: { categoryId: req.query.category } }).then((products) => {
-      res.render("products/products", { products: products });
-    });
+    Product.findAll({ where: { categoryId: req.query.category } }).then(
+      (products) => {
+        res.render("products/products", { products: products });
+      }
+    );
   } else if (req.query.category === undefined) {
     Product.findAll({ where: { userId: req.query.user } }).then((products) => {
       res.render("products/products", { products: products });
     });
   } else {
-    Product.findAll({ where: { userId: req.query.user, categoryId: req.query.category } }).then((products) => {
+    Product.findAll({
+      where: { userId: req.query.user, categoryId: req.query.category },
+    }).then((products) => {
       res.render("products/products", { products: products });
     });
   }

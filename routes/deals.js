@@ -4,9 +4,12 @@ const router = express.Router();
 const upload = require("../middlewares/uploadPicture");
 const sessionInit = require("../middlewares/sessionInit");
 
-const {teste, newDeal, newDeal2} = require('../controllers/DealController');
+const {prepareDeal, submitDeal, acceptDeal, declinetDeal} = require('../controllers/DealController');
 
-router.post("/new", newDeal2);
-router.get("/:id", sessionInit, newDeal);
+router.get("/:id", sessionInit, prepareDeal);
+
+router.post("/new", sessionInit, submitDeal);
+router.post("/accept/:id", acceptDeal);
+router.post("/decline/:id", sessionInit, declinetDeal);
 
 module.exports = router;

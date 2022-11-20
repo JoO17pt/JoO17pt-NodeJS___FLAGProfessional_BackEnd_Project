@@ -1,14 +1,19 @@
 const express = require("express");
-const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const { Sequelize, Op } = require('sequelize');
+
+const User = require("../models/User");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
+const DealUser = require("../models/DealUser");
+const DealProduct = require("../models/DealProducts");
+const Deal = require("../models/Deal");
 
-exports.register = (req, res) => {
+exports.register = (req, res) => {  
   switch (req.method) {
     case "GET":
       res.render("users/register", {
-        user: sessionUser,
+        user: req.session.user,
         categories: sessionCategories,
       });
       break;
@@ -32,7 +37,7 @@ exports.register = (req, res) => {
           })
             .then(() => {
               res.render("users/login", {
-                user: sessionUser,
+                user: req.session.user,
                 categories: sessionCategories,
               });
             })
@@ -50,7 +55,7 @@ exports.register = (req, res) => {
 exports.login = (req, res) => {
   if (req.method == "GET") {
     res.render("users/login", {
-      user: sessionUser,
+      user: req.session.user,
       categories: sessionCategories,
     });
   } else {
@@ -62,14 +67,11 @@ exports.login = (req, res) => {
         var correct = bcrypt.compareSync(password, user.password);
 
         if (correct) {
-          sessionUser = {
+          req.session.user = {
             id: user.id,
             name: user.name,
             email: user.email,
           };
-
-          req.session.user = sessionUser;
-
           res.redirect("/");
         } else {
           res.redirect("/user/login");
@@ -183,7 +185,7 @@ exports.products = (req, res) => {
     }).then((products) => {
       res.render("users/products", {
         products: products,
-        user: sessionUser,
+        user: req.session.user,
         categories: sessionCategories,
       });
     });
@@ -202,7 +204,7 @@ exports.products = (req, res) => {
     }).then((products) => {
       res.render("users/products", {
         products: products,
-        user: sessionUser,
+        user: req.session.user,
         categories: sessionCategories,
       });
     });
@@ -217,9 +219,120 @@ exports.products = (req, res) => {
     }).then((products) => {
       res.render("users/products", {
         products: products,
-        user: sessionUser,
+        user: req.session.user,
         categories: sessionCategories,
       });
     });
   }
 };
+
+exports.dealsReceived = (req, res) => {
+  User.findAll({
+    where: { id: req.session.user.id },
+    include: [
+      {
+        model: Deal,
+        where: {status: 'Open', owner: { [Op.notIn]: [req.session.user.id] }},
+        include: [
+          {
+            model: DealProduct,
+            include : Product
+          },
+          {
+            model: User
+          }
+        ]
+      },
+    ]
+  }).then((deals) => {
+    res.render("users/deals", {
+      deals: deals,
+      route: req.route.path,
+      user: req.session.user,
+      categories: sessionCategories,
+    });
+  })
+}
+
+exports.dealsSent = (req, res) => {
+  User.findAll({
+    where: { id: req.session.user.id },
+    include: [
+      {
+        model: Deal,
+        where: {status: 'Open', owner: { [Op.in]: [req.session.user.id] }},
+        include: [
+          {
+            model: DealProduct,
+            include : Product
+          },
+          {
+            model: User
+          }
+        ]
+      },
+    ]
+  }).then((deals) => {
+    res.render("users/deals", {
+      deals: deals,
+      route: req.route.path,
+      user: req.session.user,
+      categories: sessionCategories,
+    });
+  })
+}
+
+exports.dealsClosed = (req, res) => {
+  User.findAll({
+    where: { id: req.session.user.id },
+    include: [
+      {
+        model: Deal,
+        where: {status: 'Closed'},
+        include: [
+          {
+            model: DealProduct,
+            include : Product
+          },
+          {
+            model: User
+          }
+        ]
+      },
+    ]
+  }).then((deals) => {
+    res.render("users/deals", {
+      deals: deals,
+      route: req.route.path,
+      user: req.session.user,
+      categories: sessionCategories,
+    });
+  })
+}
+exports.dealsCanceled = (req, res) => {
+  User.findAll({
+    where: { id: req.session.user.id },
+    include: [
+      {
+        model: Deal,
+        where: {status: 'Canceled'},
+        include: [
+          {
+            model: DealProduct,
+            include : Product
+          },
+          {
+            model: User
+          }
+        ]
+      },
+    ]
+  }).then((deals) => {
+    res.render("users/deals", {
+      deals: deals,
+      route: req.route.path,
+      user: req.session.user,
+      categories: sessionCategories,
+    });
+  })
+}
