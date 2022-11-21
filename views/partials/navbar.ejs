@@ -1,12 +1,20 @@
 <nav class="navbar navbar-dark bg-dark fixed-top">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Backend Project</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Menu</h5>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Backend Project</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
+          <%if (user == undefined) {%>
+          Menu
+          <%} else {%>
+          Welcome <%=user.name%>
+          <%}%>
+
+          </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -14,64 +22,71 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="http://localhost:4000/">Home</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="http://localhost:4000/product">Search</a>
+            </li>
+
+            <li class="nav-item">
+              <hr class="divider">
+            </li>
 
             <% if (user == null || user == undefined || Object.keys(user).length === 0) { %>
-            <li class="nav-item">
-              <a class="nav-link" href="http://localhost:4000/user/login">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="http://localhost:4000/user/register">Register</a>
-            </li>
-            <% } else { %>
-              <li class="nav-item">
-                <a class="nav-link" href="http://localhost:4000/user/<%=user.id%>">My Profile</a>
-              </li>
-              
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  My Products
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark">
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products">View All</a></li>
-                  <li><a class="dropdown-item" href="http://localhost:4000/product/new">Add New</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  
-                  <% categories.forEach(category => {%>
-                    
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products?category=<%=category.dataValues.id%>"><%=category.dataValues.title%></a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:4000/user/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:4000/user/register">Register</a>
+          </li>
+          <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:4000/user/<%=user.id%>">My Profile</a>
+          </li>
 
-                  <%})%>
-
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products?active=1">Active</a></li>
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products?active=0">Inactive</a></li>
-                  
-                </ul>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              My Products
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products">View All</a></li>
+              <li><a class="dropdown-item" href="http://localhost:4000/product/new">Add New</a></li>
+              <li>
+                <hr class="dropdown-divider">
               </li>
 
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  My Deals
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark">
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/deals/received">Received</a></li>
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/deals/sent">Sent</a></li>
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/deals/closed">Closed</a></li>
-                  <li><a class="dropdown-item" href="http://localhost:4000/user/deals/canceled">Canceled</a></li>
-                  
-                </ul>
+              <% categories.forEach(category => {%>
+
+              <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products?category=<%=category.dataValues.id%>"><%=category.dataValues.title%></a></li>
+
+              <%})%>
+
+              <li>
+                <hr class="dropdown-divider">
               </li>
 
-              <li class="nav-item">
-                <a class="nav-link" href="http://localhost:4000/user/logout">Logout</a>
-              </li>
-            <% } %>
-        </div>
+              <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products?active=1">Active</a></li>
+              <li><a class="dropdown-item" href="http://localhost:4000/user/<%=user.id%>/products?active=0">Inactive</a></li>
+
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              My Deals
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><a class="dropdown-item" href="http://localhost:4000/user/deals/received">Received</a></li>
+              <li><a class="dropdown-item" href="http://localhost:4000/user/deals/sent">Sent</a></li>
+              <li><a class="dropdown-item" href="http://localhost:4000/user/deals/closed">Closed</a></li>
+              <li><a class="dropdown-item" href="http://localhost:4000/user/deals/canceled">Canceled</a></li>
+
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:4000/user/logout">Logout</a>
+          </li>
+          <% } %>
       </div>
     </div>
-  </nav>
+  </div>
+</nav>

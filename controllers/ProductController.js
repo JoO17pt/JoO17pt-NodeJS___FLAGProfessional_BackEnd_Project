@@ -1,8 +1,10 @@
 const express = require("express");
+const { Sequelize, Op } = require('sequelize');
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const DealProduct = require("../models/DealProducts");
 const Deal = require("../models/Deal");
+const User = require("../models/User");
 
 exports.newProduct = (req, res) => {
   switch (req.method) {
@@ -76,25 +78,30 @@ exports.delProduct = (req, res) => {
 };
 
 exports.showProducts = (req, res) => {
-  if (req.query.user === undefined && req.query.category === undefined) {
-    Product.findAll().then((products) => {
-      res.render("products/products", { products: products });
+  console.log(req.query.category)
+  if (req.query.search === undefined && req.query.category === undefined) {
+    Product.findAll({
+      include: [Category, User],
+      where: {active: true}
+    }).then((products) => {
+      res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
     });
-  } else if (req.query.user === undefined) {
-    Product.findAll({ where: { categoryId: req.query.category } }).then(
+  } else if (req.query.search === undefined) {
+    Product.findAll({ include: [Category, User], where: { categoryId: req.query.category } }).then(
       (products) => {
-        res.render("products/products", { products: products });
+        res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
       }
     );
   } else if (req.query.category === undefined) {
-    Product.findAll({ where: { userId: req.query.user } }).then((products) => {
-      res.render("products/products", { products: products });
+    Product.findAll({ include: [Category, User], where: { title: {[Op.like]: '%' + req.query.search + '%'} } }).then((products) => {
+      res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
     });
   } else {
     Product.findAll({
-      where: { userId: req.query.user, categoryId: req.query.category },
+      include: [Category, User],
+      where: { title: {[Op.like]: '%' + req.query.search + '%'} , categoryId: req.query.category },
     }).then((products) => {
-      res.render("products/products", { products: products });
+      res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
     });
   }
 };

@@ -11,6 +11,6 @@ router.post("/new", sessionInit, upload.single('picture'), newProduct);
 
 router.get("/delete/:id", sessionInit, delProduct);
 
-router.get("/", sessionInit, showProducts);
+router.get("/", showProducts);
 
 module.exports = router;

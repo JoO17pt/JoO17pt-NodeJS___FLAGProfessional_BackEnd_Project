@@ -6,20 +6,24 @@ const DealUser = require("../models/DealUser");
 const DealProduct = require("../models/DealProducts");
 
 exports.prepareDeal = (req, res) => {
-  User.findByPk(req.params.id).then((userOther) => {
-    Product.findAll({
-      where: { userId: [req.params.id, req.session.user.id], active: true },
-      include: Category,
-      order: [["updatedAt", "DESC"]],
-    }).then((products) => {
-      res.render("deals/new", {
-        user: req.session.user,
-        otherUser: userOther,
-        categories: sessionCategories,
-        products: products,
+  if (req.params.id == req.session.user.id) {
+    res.redirect("/product")
+  } else {
+    User.findByPk(req.params.id).then((userOther) => {
+      Product.findAll({
+        where: { userId: [req.params.id, req.session.user.id], active: true },
+        include: Category,
+        order: [["updatedAt", "DESC"]],
+      }).then((products) => {
+        res.render("deals/new", {
+          user: req.session.user,
+          otherUser: userOther,
+          categories: sessionCategories,
+          products: products,
+        });
       });
     });
-  });
+  }
 };
 
 exports.submitDeal = (req, res) => {
@@ -92,7 +96,7 @@ exports.submitDeal = (req, res) => {
             });
           };
           recordProducts().then(() => {
-            res.send("Importação concluida!");
+            res.redirect("/user/deals/sent");
           });
         });
       });

@@ -1,25 +1,103 @@
 <%- include('../partials/header.ejs') %>
-<body>
-  <% products.forEach(product => { %>
 
-  <div class="card mb-3" style="max-width: 540px">
-    <div class="row g-0">
-      <div class="col-md-4">
-        <img src="http://localhost:4000/productPics/<%=product.picture == null ? "no_image.png": product.picture.trim()%>" class="img-fluid rounded-start" alt="..." />
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  <div class="container">
+
+    <br />
+    <br />
+    <br />
+
+    <nav class="navbar navbar-dark navbar-expand-lg bg-dark">
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav">
+            
+            <li class="nav-item dropdown">
+              <a id="dropDownTitle" catId="" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Categories
+              </a>
+              <ul class="dropdown-menu">
+                <% categories.forEach(category => {%>
+                <li><a class="dropdown-item catDropdown" href="" id="<%=category.id%>"><%=category.title%></a></li>
+                <%})%>
+              </ul>
+            </li>
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button id="searchButton" class="btn btn-outline-light" type="submit">Search</button>
+          </ul>
+        </div>
       </div>
-      <div class="col-md-8">
-        <div class="card-body">
-          <h5 class="card-title"><%= product.title %></h5>
-          <p class="card-text">
-            <%= product.description %>
-          </p>
-          <p class="card-text">
-            <small class="text-muted">Last updated 3 mins ago</small>
-          </p>
+    </nav>
+
+    <br />
+    <% products.forEach(product => {%>
+
+    <div class="card mb-4" style="width: 90%; margin: auto">
+      <div class="row g-0">
+        <div class="col-md-3">
+          <img src="http://localhost:4000/productPics/<%=product.picture == null ? "no_image.png": product.picture.trim()%>" class="img-fluid rounded-start" alt="..." style="max-width: 250px"/>
+        </div>
+        <div class="col-md-7">
+          <div class="card-body">
+            <h5 class="card-title"><%= product.title %></h5>
+            <p class="card-text">
+              <strong>Description: </strong><%= product.description %>
+            </p>
+            <p class="card-text">
+              <strong>Category: </strong><%=
+              product.dataValues.category.dataValues.title %>
+            </p>
+            <p class="card-text">
+              <strong>Owner: </strong><%= product.dataValues.user.dataValues.name %>
+            </p>
+            <p class="card-text">
+              <small class="text-muted"
+                >Updated at: <%= product.updatedAt %></small
+              >
+            </p>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <form action="/deal/<%=product.dataValues.user.dataValues.id%>" method="GET">
+            <button type="submit" class="btn btn-dark btn-block addRemoveButton">Propose Deal</button><br>
+        </form>
         </div>
       </div>
     </div>
-  </div>
 
-  <% }) %>
-<%- include('../partials/footer.ejs') %>
+    <% }) %>
+  </div>
+  <%- include('../partials/footer.ejs') %>
+
+  <script>
+
+    const submitButton = document.querySelector("#searchButton");
+
+    const catDropdown = document.querySelectorAll(".catDropdown");
+
+    const dropDownTitle = document.querySelector("#dropDownTitle");
+
+    const inputSearch = document.querySelector("input");
+
+    catDropdown.forEach(cat => {
+      cat.addEventListener("click", e=> {
+        e.preventDefault();
+        dropDownTitle.innerText = e.target.innerText;
+        dropDownTitle.setAttribute("catId", Number(e.target.id));
+      })
+    })
+
+    submitButton.addEventListener("click", e=> {
+      if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "") {
+        window.location = "http://localhost:4000/product";
+      }else if (inputSearch.value.trim() == "") {
+          window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}`;
+        } else if (dropDownTitle.innerText.trim() == "Categories") {
+          window.location = `http://localhost:4000/product?search=${inputSearch.value}`;
+        } else {
+          window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}`;
+        }
+      });
+
+  </script>
