@@ -9,11 +9,14 @@ const DealUser = connection.define("dealUsers", {
     autoIncrement: true,
     primaryKey: true
   },
-  // owner: {
-  //   type: Sequelize.BOOLEAN,
-  //   allowNull: false,
-  // },
+  rate: {
+    type: Sequelize.INTEGER,
+    defaultValue: null,
+    allowNull: true,
+  },
 });
+
+// DealUser.sync({force: true});
 
 // User.hasMany(DealUser);
 // DealUser.belongsTo(User);

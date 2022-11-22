@@ -9,7 +9,7 @@
     <br />
     <br />
     <h4>No deals available.</h4>
-    <%} else {%>
+    <%} else {console.log(deals[0].deals[0].dataValues.dealUsers)%>
     <% deals[0].deals.forEach(deal => {;%>
     <div class="card mt-5">
       <div class="card-header">
@@ -92,11 +92,7 @@
           <% }}) %>
         </div>
       </div>
-    </div>
 
-    <br />
-
-      <div class="col-1">
       <%if (route == "/deals/received") {%>
       <div class="row">
         <form action="http://localhost:4000/deal/accept/<%=deal.dataValues.id%>" method="POST">
@@ -114,22 +110,6 @@
           <button type="submit" class="btn btn-dark btn-block">Cancel</button>
         </form>
       </div>
-      <%} else if (route == "/deals/closed"){
-        if (notRateDeals.indexOf(deal.dataValues.id) !== -1 ) {%>
-
-      <form action="http://localhost:4000/deal/rate/<%=deal.dataValues.id%>" method="POST">
-        <select name="rate" class="form-select" aria-label="Default select example">
-          <option selected>Rate</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-        <button type="submit" class="btn btn-dark btn-block">Submit</button>
-      </form>
-
-      <%}%>
       <%}%>
     </div>
     <br />

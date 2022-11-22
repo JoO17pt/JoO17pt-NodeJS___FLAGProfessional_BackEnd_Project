@@ -296,16 +296,32 @@ exports.dealsClosed = (req, res) => {
           },
           {
             model: User
-          }
+          },
         ]
       },
     ]
   }).then((deals) => {
-    res.render("users/deals", {
-      deals: deals,
-      route: req.route.path,
-      user: req.session.user,
-      categories: sessionCategories,
+    
+    var tempDeals = [];
+    var notRateDealsArray = [];
+
+    deals[0].deals.forEach(deal=> {
+      tempDeals.push(Number(deal.dataValues.id));
+    });
+
+    DealUser.findAll({
+      where: {dealId: tempDeals, rate: null, userId: { [Op.notIn]: [req.session.user.id] },}
+    }).then((notRatedDeals) => {
+      notRatedDeals.forEach(deal => {
+        notRateDealsArray.push(deal.dataValues.dealId);
+      })
+      res.render("users/deals", {
+        deals: deals,
+        notRateDeals: notRateDealsArray,
+        route: req.route.path,
+        user: req.session.user,
+        categories: sessionCategories,
+      });
     });
   })
 }

@@ -4,10 +4,11 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const DealUser = require("../models/DealUser");
 const DealProduct = require("../models/DealProducts");
+const { Sequelize, Op } = require("sequelize");
 
 exports.prepareDeal = (req, res) => {
   if (req.params.id == req.session.user.id) {
-    res.redirect("/product")
+    res.redirect("/product");
   } else {
     User.findByPk(req.params.id).then((userOther) => {
       Product.findAll({
@@ -225,5 +226,73 @@ exports.declinetDeal = (req, res) => {
         }
       });
     }
+  });
+};
+
+exports.rateDeal = (req, res) => {
+  // ================================== Validation Tests ============================================
+  // Check if the deal is closed, if the session user is part of the deal, if the rate is a valid number, and if it wasn't yet rated
+
+  DealUser.findAll({
+    where: { dealId: req.params.id },
+  }).then((dealUserElem) => {
+    var dealUserArray = [];
+    var possibleRates = [1, 2, 3, 4, 5];
+    var userRate = "";
+    var otherUser = "";
+
+    dealUserElem[0].dataValues.userId == req.session.user.id
+      ? (userRate = dealUserElem[1].dataValues.rate)
+      : (userRate = dealUserElem[0].dataValues.rate);
+
+    dealUserElem[0].dataValues.userId == req.session.user.id
+      ? (otherUser = dealUserElem[1].dataValues.userId)
+      : (otherUser = dealUserElem[0].dataValues.userId);
+
+    dealUserElem.forEach((deal) => {
+      dealUserArray.push(deal.dataValues.userId);
+    });
+    Deal.findByPk(req.params.id).then((deal) => {
+      if (
+        deal.status !== "Closed" ||
+        dealUserArray.indexOf(req.session.user.id) == -1 ||
+        possibleRates.indexOf(Number(req.body.rate)) == -1 ||
+        userRate !== null
+      ) {
+        res.redirect("/user/deals/closed");
+      } else {
+        // ================================== End of Validation Tests ============================================
+        // ========================================= DB Update ===================================================
+        DealUser.update(
+          { rate: Number(req.body.rate) },
+          {
+            where: {
+              userId: { [Op.notIn]: [req.session.user.id] },
+              dealId: req.params.id,
+            },
+          }
+        ).then(() => {
+          DealUser.findAll({
+            where: { userId: otherUser },
+            attributes: [
+              [
+                Sequelize.fn(
+                  "AVG",
+                  Sequelize.cast(Sequelize.col("rate"), "integer")
+                ),
+                "avgRate",
+              ],
+            ],
+          }).then((result) => {
+            User.update(
+              { rate: result[0].dataValues.avgRate },
+              { where: { id: otherUser } }
+            ).then(() => {
+              res.redirect("/user/deals/closed");
+            });
+          });
+        });
+      }
+    });
   });
 };

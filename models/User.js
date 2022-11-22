@@ -22,13 +22,18 @@ const User = connection.define('users',{
         type: Sequelize.STRING,
         allowNull: true
      }
+     ,rate: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+     }
 })
 
 User.belongsToMany(Deal, { through: DealUser });
 Deal.belongsToMany(User, { through: DealUser });
 
-// User.hasMany(DealUser);
-// DealUser.belongsTo(User);
+User.hasMany(DealUser);
+DealUser.belongsTo(User);
 
 // connection.sync({force: true});
 
