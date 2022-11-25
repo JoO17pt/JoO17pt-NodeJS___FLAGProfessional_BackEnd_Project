@@ -17,8 +17,14 @@ const User = connection.define('users',{
     ,location: {
         type: Sequelize.STRING,
         allowNull: false
+    } 
+    ,latitude: {
+        type: Sequelize.FLOAT(10, 6) 
     }
-    ,picture: {
+    ,longitude: {
+        type: Sequelize.FLOAT(10, 6) 
+    },
+    picture: {
         type: Sequelize.STRING,
         allowNull: true
      }

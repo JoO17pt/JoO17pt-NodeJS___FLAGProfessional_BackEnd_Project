@@ -1,5 +1,5 @@
 const express = require("express");
-const { Sequelize, Op } = require('sequelize');
+const { Sequelize, Op } = require("sequelize");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const DealProduct = require("../models/DealProducts");
@@ -78,30 +78,230 @@ exports.delProduct = (req, res) => {
 };
 
 exports.showProducts = (req, res) => {
-  console.log(req.query.category)
-  if (req.query.search === undefined && req.query.category === undefined) {
-    Product.findAll({
-      include: [Category, User],
-      where: {active: true}
+  const haversine = `(
+      6371 * acos(
+          cos(radians(${req.query.lat}))
+          * cos(radians(latitude))
+          * cos(radians(longitude) - radians(${req.query.lng}))
+          + sin(radians(${req.query.lat})) * sin(radians(latitude))
+      )
+    )`;
+
+  // NONE
+  if (
+    req.query.search === undefined &&
+    req.query.category === undefined &&
+    (req.query.lat === undefined ||
+      req.query.lng === undefined ||
+      req.query.dst === undefined)
+  ) {
+    User.findAll({
+      include: {
+        model: Product,
+        include: Category,
+        where: { active: true },
+      },
     }).then((products) => {
-      res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
     });
+
+    // CATEGORY
+  } else if (
+    req.query.search === undefined &&
+    (req.query.lat === undefined ||
+      req.query.lng === undefined ||
+      req.query.dst === undefined)
+  ) {
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+          where: { id: req.query.category },
+        },
+        where: { active: true },
+      },
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
+    });
+
+    // SEARCH
+  } else if (
+    req.query.category === undefined &&
+    (req.query.lat === undefined ||
+      req.query.lng === undefined ||
+      req.query.dst === undefined)
+  ) {
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+        },
+        where: [
+          { active: true },
+          { title: { [Op.like]: "%" + req.query.search + "%" } },
+        ],
+      },
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
+    });
+
+    // DISTANCE
+  } else if (
+    req.query.category === undefined &&
+    req.query.search === undefined
+  ) {
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+        },
+        where: [{ active: true }],
+      },
+      attributes: {
+        include: [[Sequelize.literal(haversine), "distance"]],
+      },
+      having: Sequelize.literal(`distance <= ${req.query.dst}`),
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
+    });
+
+    // CATEGORY & SEARCH
+  } else if (
+    req.query.lat === undefined ||
+    req.query.lng === undefined ||
+    req.query.dst === undefined
+  ) {
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+          where: { id: req.query.category },
+        },
+        where: [
+          { active: true },
+          { title: { [Op.like]: "%" + req.query.search + "%" } },
+        ],
+      },
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
+    });
+
+    // CATEGORY & DISTANCE
   } else if (req.query.search === undefined) {
-    Product.findAll({ include: [Category, User], where: { categoryId: req.query.category } }).then(
-      (products) => {
-        res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
-      }
-    );
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+          where: { id: req.query.category },
+        },
+        where: [{ active: true }],
+      },
+      attributes: {
+        include: [[Sequelize.literal(haversine), "distance"]],
+      },
+      having: Sequelize.literal(`distance <= ${req.query.dst}`),
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
+    });
+
+    // SEARCH & DISTANCE
   } else if (req.query.category === undefined) {
-    Product.findAll({ include: [Category, User], where: { title: {[Op.like]: '%' + req.query.search + '%'} } }).then((products) => {
-      res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+        },
+        where: [
+          { active: true },
+          { title: { [Op.like]: "%" + req.query.search + "%" } },
+        ],
+      },
+      attributes: {
+        include: [[Sequelize.literal(haversine), "distance"]],
+      },
+      having: Sequelize.literal(`distance <= ${req.query.dst}`),
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
+    });
+
+    // SEARCH & DISTANCE & CATEGORY
+  } else if (
+    req.query.search !== undefined &&
+    req.query.category !== undefined &&
+    req.query.lat !== undefined &&
+    req.query.lng !== undefined &&
+    req.query.dst !== undefined
+  ) {
+    User.findAll({
+      include: {
+        model: Product,
+        include: {
+          model: Category,
+          where: { id: req.query.category },
+        },
+        where: [
+          { active: true },
+          { title: { [Op.like]: "%" + req.query.search + "%" } },
+        ],
+      },
+      attributes: {
+        include: [[Sequelize.literal(haversine), "distance"]],
+      },
+      having: Sequelize.literal(`distance <= ${req.query.dst}`),
+    }).then((products) => {
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
     });
   } else {
-    Product.findAll({
-      include: [Category, User],
-      where: { title: {[Op.like]: '%' + req.query.search + '%'} , categoryId: req.query.category },
+    User.findAll({
+      include: {
+        model: Product,
+        include: Category,
+        where: { active: true },
+      },
     }).then((products) => {
-      res.render("products/products", { products: products, categories: sessionCategories, user: req.session.user });
+      res.render("products/products", {
+        products: products,
+        categories: sessionCategories,
+        user: req.session.user,
+      });
     });
   }
 };

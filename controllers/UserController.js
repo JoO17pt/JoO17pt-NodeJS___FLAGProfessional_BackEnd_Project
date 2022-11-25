@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { Sequelize, Op } = require('sequelize');
+const geocoder = require("../utils/geocoder");
 
 const User = require("../models/User");
 const Product = require("../models/Product");
@@ -28,22 +29,34 @@ exports.register = (req, res) => {
             ? (picture = null)
             : (picture = req.file.filename);
 
-          User.create({
-            email: req.body.email,
-            password: hash,
-            name: req.body.name,
-            location: req.body.location,
-            picture: picture,
-          })
-            .then(() => {
-              res.render("users/login", {
-                user: req.session.user,
-                categories: sessionCategories,
-              });
+          const getCoordinates = async () => {
+            const loc = await geocoder.geocode(req.body.location);
+            const lat = loc[0].latitude;
+            const lng = loc[0].longitude;
+            return ({lat: lat, lng: lng});
+          }
+
+          getCoordinates().then((coordinates) => {
+
+            User.create({
+              email: req.body.email,
+              password: hash,
+              name: req.body.name,
+              location: req.body.location,
+              latitude: coordinates.lat,
+              longitude: coordinates.lng,
+              picture: picture,
             })
-            .catch((err) => {
-              res.send("Importação falhou");
-            });
+              .then(() => {
+                res.render("users/login", {
+                  user: req.session.user,
+                  categories: sessionCategories,
+                });
+              })
+              .catch((err) => {
+                res.send("Importação falhou");
+              });
+          })
         } else {
           res.send("User já existente");
         }
@@ -130,6 +143,7 @@ exports.update = (req, res) => {
         res.redirect("/");
       } else {
         User.findOne({ where: { email: req.body.email } }).then((user) => {
+          
           User.update(
             { name: req.body.name, location: req.body.location },
             {

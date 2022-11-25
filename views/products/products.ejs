@@ -23,6 +23,21 @@
                 <%})%>
               </ul>
             </li>
+
+            <li class="nav-item dropdown">
+              <a id="distDropDownTitle" distQuerry="" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Near Me (km)
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item distDropdown" href="" id="5">5</a></li>
+                <li><a class="dropdown-item distDropdown" href="" id="10">10</a></li>
+                <li><a class="dropdown-item distDropdown" href="" id="20">20</a></li>
+                <li><a class="dropdown-item distDropdown" href="" id="30">30</a></li>
+                <li><a class="dropdown-item distDropdown" href="" id="50">50</a></li>
+                <li><a class="dropdown-item distDropdown" href="" id="100">100</a></li>
+              </ul>
+            </li>
+
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
               <button id="searchButton" class="btn btn-outline-light" type="submit">Search</button>
           </ul>
@@ -31,7 +46,7 @@
     </nav>
 
     <br />
-    <% products.forEach(product => {%>
+    <% products.forEach(user => {user.dataValues.products.forEach(product=> {%>
 
     <div class="card mb-4" style="width: 90%; margin: auto">
       <div class="row g-0">
@@ -49,7 +64,7 @@
               product.dataValues.category.dataValues.title %>
             </p>
             <p class="card-text">
-              <strong>Owner: </strong><%= product.dataValues.user.dataValues.name %>
+              <strong>Owner: </strong><%= user.dataValues.name %>
             </p>
             <p class="card-text">
               <small class="text-muted"
@@ -59,14 +74,14 @@
           </div>
         </div>
         <div class="col-md-2">
-          <form action="/deal/<%=product.dataValues.user.dataValues.id%>" method="GET">
+          <form action="/deal/<%=user.dataValues.id%>" method="GET">
             <button type="submit" class="btn btn-dark btn-block addRemoveButton">Propose Deal</button><br>
         </form>
         </div>
       </div>
     </div>
 
-    <% }) %>
+    <% })}) %>
   </div>
   <%- include('../partials/footer.ejs') %>
 
@@ -78,6 +93,10 @@
 
     const dropDownTitle = document.querySelector("#dropDownTitle");
 
+    const distDropdown = document.querySelectorAll(".distDropdown");
+
+    const distDropDownTitle = document.querySelector("#distDropDownTitle");
+
     const inputSearch = document.querySelector("input");
 
     catDropdown.forEach(cat => {
@@ -88,15 +107,61 @@
       })
     })
 
+    distDropdown.forEach(dist => {
+      dist.addEventListener("click", e=> {
+        e.preventDefault();
+        distDropDownTitle.innerText = e.target.innerText;
+
+        const successCallBack = (position) => {
+          console.log(position.coords.latitude);
+          console.log(position.coords.longitude);
+          distDropDownTitle.setAttribute("distQuerry", `lat=${position.coords.latitude}&lng=${position.coords.longitude}&dst=${e.target.innerText}`);
+        }
+        
+        const failureCallBack = (err) => {
+          console.log(err);
+        }
+        
+        if(window.navigator) {
+          window.navigator.geolocation.getCurrentPosition(
+            successCallBack,
+            failureCallBack
+          );
+        }
+      })
+    })
+
     submitButton.addEventListener("click", e=> {
-      if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "") {
+      if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
         window.location = "http://localhost:4000/product";
-      }else if (inputSearch.value.trim() == "") {
+        
+        // CATEGORY
+        }else if (inputSearch.value.trim() == "" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
           window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}`;
-        } else if (dropDownTitle.innerText.trim() == "Categories") {
+        
+        // SEARCH
+        } else if (dropDownTitle.innerText.trim() == "Categories" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
           window.location = `http://localhost:4000/product?search=${inputSearch.value}`;
-        } else {
+
+        // DISTANCE
+        } else if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "") {
+          window.location = `http://localhost:4000/product?${distDropDownTitle.getAttribute("distQuerry")}`;
+        
+        // CATEGORY & SEARCH
+        } else if (distDropDownTitle.innerText.trim() == "Near Me (km)") {
           window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}`;
+        
+        // CATEGORY & DISTANCE
+        } else if (inputSearch.value.trim() == "") {
+          window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}&${distDropDownTitle.getAttribute("distQuerry")}`;
+         
+        // SEARCH & DISTANCE
+        } else if (dropDownTitle.innerText.trim() == "Categories") {
+          window.location = `http://localhost:4000/product?search=${inputSearch.value}&${distDropDownTitle.getAttribute("distQuerry")}`;
+
+        // SEARCH & DISTANCE & CATEGORY
+        } else {
+          window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}&${distDropDownTitle.getAttribute("distQuerry")}`;
         }
       });
 
