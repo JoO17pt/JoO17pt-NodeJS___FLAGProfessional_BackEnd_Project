@@ -10,10 +10,27 @@
     <h1>Home Page</h1>
     <hr />
 
+    <div class="row">
+      <div class="col-md-4 picSquare">Teste</div>
+      <div class="col-md-4">Teste</div>
+      <div class="col-md-4">Teste</div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Teste</div>
+      <div class="col-md-4">Teste</div>
+      <div class="col-md-4">Teste</div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Teste</div>
+      <div class="col-md-4">Teste</div>
+      <div class="col-md-4">Teste</div>
+    </div>
+
+
+
     <% if (user !== undefined) { %>
     <h2>Welcome <%= user.name %></h2>
     <% } %>
   </div>
-</body>
 
 <%- include('partials/footer.ejs') %>

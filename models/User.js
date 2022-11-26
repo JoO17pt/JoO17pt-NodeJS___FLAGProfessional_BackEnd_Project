@@ -2,6 +2,8 @@ const Sequelize = require("sequelize");
 const connection = require("../database/database");
 const Deal = require("./Deal");
 const DealUser = require("./DealUser");
+const MessageUser = require("./MessageUser");
+const Message = require("./Message");
 
 const User = connection.define('users',{
     email:{
@@ -37,6 +39,9 @@ const User = connection.define('users',{
 
 User.belongsToMany(Deal, { through: DealUser });
 Deal.belongsToMany(User, { through: DealUser });
+
+User.belongsToMany(Message, { through: MessageUser });
+Message.belongsToMany(User, { through: MessageUser });
 
 User.hasMany(DealUser);
 DealUser.belongsTo(User);

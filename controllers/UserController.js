@@ -319,10 +319,12 @@ exports.dealsClosed = (req, res) => {
     var tempDeals = [];
     var notRateDealsArray = [];
 
-    deals[0].deals.forEach(deal=> {
-      tempDeals.push(Number(deal.dataValues.id));
-    });
-
+    if (deals.length !== 0) {
+      deals[0].deals.forEach(deal=> {
+        tempDeals.push(Number(deal.dataValues.id));
+      });
+    };
+ 
     DealUser.findAll({
       where: {dealId: tempDeals, rate: null, userId: { [Op.notIn]: [req.session.user.id] },}
     }).then((notRatedDeals) => {

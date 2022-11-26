@@ -4,7 +4,13 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const DealUser = require("../models/DealUser");
 const DealProduct = require("../models/DealProducts");
+const Message = require("../models/Message");
+const MessageUser = require("../models/MessageUser");
 const { Sequelize, Op } = require("sequelize");
+
+// ============================
+
+// ============================
 
 exports.prepareDeal = (req, res) => {
   if (req.params.id == req.session.user.id) {
@@ -294,5 +300,54 @@ exports.rateDeal = (req, res) => {
         });
       }
     });
+  });
+};
+
+exports.dealChat = (req, res) => {
+  // ================================== Validation Tests ============================================
+  // Check if the session user is part of the deal
+
+  DealUser.findAll({
+    where: { dealId: req.params.id },
+  }).then((deal) => {
+    var dealUsers = [];
+    deal.forEach((dealUser) => {
+      dealUsers.push(dealUser.dataValues.userId);
+    });
+    if (dealUsers.indexOf(req.session.user.id) === -1) {
+      res.redirect("/user/deals/closed");
+    } else {
+      // ================================== End of Validation Tests ============================================
+
+      MessageUser.findAll({
+        where: {
+          userId: dealUsers[0],
+        },
+      }).then((messageUser) => {
+        var messagesArray = [];
+        messageUser.forEach((elem) => {
+          messagesArray.push(elem.dataValues.messageId);
+        });
+        MessageUser.findAll({
+          where: [{ userId: dealUsers[1] }, { messageId: messagesArray }],
+        }).then((messageUserFinal) => {
+          var messagesArrayFinal = [];
+          messageUserFinal.forEach((elemFinal) => {
+            messagesArrayFinal.push(elemFinal.dataValues.messageId);
+          });
+
+          Message.findAll({
+            where: [{ id: messagesArrayFinal }],
+          }).then((messages) => {
+            res.render("deals/chat", {
+              user: req.session.user,
+              messages: messages,
+              categories: sessionCategories,
+              room: dealUsers,
+            });
+          });
+        });
+      });
+    }
   });
 };

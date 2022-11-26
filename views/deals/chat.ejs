@@ -1,0 +1,58 @@
+<%- include('../partials/header.ejs') %>
+
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <br />
+  <br />
+  <br />
+
+  <h1>Chat</h1>
+  
+  <div id="chat">
+    <%messages.forEach(message => {%>
+        <%if(message.owner == user.id) {%>
+            <p>Sent: <%=message.text%></p>
+        <%} else {%>
+            <p>Received: <%=message.text%></p>
+        <%}%>
+    <%})%>
+  </div>
+  <input type="text" name="" id="msg"><br>
+  <input type="text" name="" id="username" value="<%=user.name%>" hidden>
+  <input type="text" name="" id="userId" value="<%=user.id%>" hidden>
+  <input type="text" name="" id="room" value="<%=room[0]+"_"+room[1]%>" hidden>
+  <button onclick="send()">Enviar mensagem</button>
+
+  <%- include('../partials/footer.ejs') %>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+<script>
+
+    let room=document.getElementById("room").value;
+    let username=document.getElementById("username").value;
+    let userId=document.getElementById("userId").value;
+
+    var socket=io("http://localhost:4000");
+
+    addEventListener("load", (e) => {
+        socket.emit("join",{room: room})
+    });
+
+    socket.on("disconnect",() =>{
+        console.log("Disconnected");
+    });
+
+    function send() {
+        var msg=document.getElementById("msg").value;
+        socket.emit("message",{ username: username, userId: userId,  room: room, text: msg})
+    }
+
+    socket.on("message",(data) => {
+        var chat=document.getElementById("chat");
+        var p=document.createElement("p");
+        p.innerHTML= data.username +" : "+data.text;
+        chat.append(p);
+    })
+</script>
