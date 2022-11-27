@@ -4,10 +4,7 @@ const express = require("express");
 const app = express();
 
 var http = require("http").createServer(app);
-
 var io = require("socket.io")(http);
-
-app.set("view engine", "ejs");
 
 const connection = require("./database/database");
 const session = require("express-session");
@@ -17,10 +14,11 @@ const products = require("./routes/products");
 const deals = require("./routes/deals");
 
 const Category = require("./models/Category");
+const Product = require("./models/Product");
 const Message = require("./models/Message");
 const MessageUser = require("./models/MessageUser");
 
-// =============================== CHAT ==========================================
+// 2. Socket Chat + Message System =========================================================
 
 io.on("connection", (socket) => {
   socket.on("join", ({ room }) => {
@@ -60,9 +58,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// ===============================================================================
-
-// 2. Database Connection ===================================================================
+// 3. Database Connection ===================================================================
 
 connection
   .authenticate()
@@ -73,27 +69,27 @@ connection
     console.log(msgErro);
   });
 
-// 3. Database Connection ===================================================================
+// 4. User Session ========================================================================
+
 app.use(
   session({
-    secret: "backendproject",
+    secret: process.env.SECRET,
     resave: true,
     saveUninitialized: true,
     cookie: { maxAge: 3000000000 },
   })
 );
 
-app.get("/leitura", function (req, res) {
-  res.json({ name: req.session });
-});
-
-// X. XXXXXXXXXXXXXXXXXX ===================================================================
+// 5. Others =============================================================================
 
 require("dotenv").config({ path: "./config/config.env" });
+
+app.set("view engine", "ejs");
 
 app.use(express.static("public"));
 
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -111,12 +107,19 @@ global.sessionCategories = "";
 
 Category.findAll().then((categories) => {
   sessionCategories = categories;
-  app.get("/", function (req, res) {
-    res.render("home", {
-      user: req.session.user,
-      categories: sessionCategories,
+  Product.findAll().then(products=>{
+    picsArray =[];
+    products.forEach(product => {
+      picsArray.push(product.picture)
+    })
+    app.get("/", function (req, res) {
+      res.render("home", {
+        user: req.session.user,
+        categories: sessionCategories,
+        pictures: picsArray,
+      });
     });
-  });
+  })
 });
 
 http.listen(process.env.PORT, () => {

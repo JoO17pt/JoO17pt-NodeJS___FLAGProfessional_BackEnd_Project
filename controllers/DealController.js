@@ -1,3 +1,5 @@
+// 1. Variables Declaration =================================================================
+
 const Deal = require("../models/Deal");
 const User = require("../models/User");
 const Product = require("../models/Product");
@@ -8,9 +10,7 @@ const Message = require("../models/Message");
 const MessageUser = require("../models/MessageUser");
 const { Sequelize, Op } = require("sequelize");
 
-// ============================
-
-// ============================
+// 2. Manage the new deal view ===============================================================
 
 exports.prepareDeal = (req, res) => {
   if (req.params.id == req.session.user.id) {
@@ -33,6 +33,8 @@ exports.prepareDeal = (req, res) => {
   }
 };
 
+// 3. Manage the creation of a new deal ===================================================
+
 exports.submitDeal = (req, res) => {
   let productsArray = req.body.products.split(",");
 
@@ -40,8 +42,9 @@ exports.submitDeal = (req, res) => {
     productsArray[index] = parseInt(element);
   });
 
-  // ================================== Validation Tests ============================================
-  // Check if the products are still available, and if belong to one of the two transaction parties
+  // ================================== Validation Tests ==================================
+  // Check if the products are still available, and if threy belong to one of the two  
+  // transaction parties
 
   Product.findAll({
     where: { id: productsArray },
@@ -61,7 +64,8 @@ exports.submitDeal = (req, res) => {
       userProducts.push(product.userId);
     });
 
-    // Check if the owner of the transaction has open session, and if each transaction party has at least one product
+    // Check if the owner of the transaction has open session, and if each transaction party 
+    // has at least one product
 
     if (
       Number(req.body.owner) !== req.session.user.id ||
@@ -72,8 +76,8 @@ exports.submitDeal = (req, res) => {
     }
 
     if (valError == "No errors found.") {
-      // ================================== End of Validation Tests ============================================
-      // ================================== DB Transaction Creation ============================================
+      // =============================== End of Validation Tests ==========================
+      // =============================== DB Transaction Creation ==========================
 
       Deal.create(
         {
@@ -103,25 +107,28 @@ exports.submitDeal = (req, res) => {
             });
           };
           recordProducts().then(() => {
-            res.redirect("/user/deals/sent");
+            setTimeout(function() {res.redirect("/user/deals/sent");},2000)
           });
         });
       });
     } else {
-      res.send("Erros de validação!");
+      res.redirect(`/deal/${req.body.other}`);
     }
   });
 };
 
+// 4. Manage the acceptance of a deal ====================================================
+
 exports.acceptDeal = (req, res) => {
-  // ================================== Validation Tests ============================================
+  // =============================== Validation Tests ====================================
   // Check if the deal is still open
 
   Deal.findByPk(req.params.id).then((deal) => {
     if (deal.dataValues.status !== "Open") {
-      res.send("Deal is unavailable.");
+      res.redirect(`/user/deals/received`);
     } else {
-      // Check if the user requesting the acceptance is part of the deal and if it's not the owner
+      // Check if the user requesting the acceptance is part of the deal and if it's not 
+      // the owner
 
       DealUser.findAll({
         where: { dealId: req.params.id },
@@ -134,10 +141,10 @@ exports.acceptDeal = (req, res) => {
           dealUser.indexOf(req.session.user.id) === -1 ||
           deal.dataValues.owner === req.session.user.id
         ) {
-          res.send("User is not part of the deal / is the owner of the deal.");
+          res.redirect(`/user/deals/received`);
 
-          // ================================== End of Validation Tests ============================================
-          // ========================================= DB Update ===================================================
+          // ========================== End of Validation Tests ===========================
+          // ================================= DB Update ==================================
           // Change the deal status to "Closed"
         } else {
           Deal.update(
@@ -148,8 +155,8 @@ exports.acceptDeal = (req, res) => {
               },
             }
           ).then(() => {
+            
             // Change the deal products to not active
-
             DealProduct.findAll({
               where: { dealId: req.params.id },
             }).then((products) => {
@@ -165,8 +172,9 @@ exports.acceptDeal = (req, res) => {
                   },
                 }
               ).then(() => {
-                // Change the deal status to "Canceled", to the other deals with the same products
-
+                
+                // Change the deal status to "Canceled", to the other deals with the same 
+                // products
                 DealProduct.findAll({
                   where: { productId: dealProducts },
                 }).then((deals) => {
@@ -195,16 +203,19 @@ exports.acceptDeal = (req, res) => {
   });
 };
 
+// 5. Manage the decline of a deal =======================================================
+
 exports.declinetDeal = (req, res) => {
-  // ================================== Validation Tests ============================================
+  
+  // ============================= Validation Tests ======================================
   // Check if the deal is still open
 
   Deal.findByPk(req.params.id).then((deal) => {
     if (deal.dataValues.status !== "Open") {
-      res.send("Deal is unavailable.");
+      res.redirect(`/user/deals/received`);
     } else {
-      // Check if the user requesting the acceptance is part of the deal
-
+      
+      // Check if the user requesting the decline is part of the deal
       DealUser.findAll({
         where: { dealId: req.params.id },
       }).then((DealUser) => {
@@ -213,11 +224,11 @@ exports.declinetDeal = (req, res) => {
           dealUser.push(elem.dataValues.userId);
         });
         if (dealUser.indexOf(req.session.user.id) === -1) {
-          res.send("User is not part of the deal.");
+          res.redirect(`/user/deals/received`);
 
-          // ================================== End of Validation Tests ============================================
-          // ========================================= DB Update ===================================================
-          // Change the deal status to "Closed"
+          // =========================== End of Validation Tests ==========================
+          // ================================= DB Update ==================================
+          // Change the deal status to "Canceled"
         } else {
           Deal.update(
             { status: "Canceled" },
@@ -235,9 +246,12 @@ exports.declinetDeal = (req, res) => {
   });
 };
 
+// 6. Manage the rate of a deal =======================================================
+
 exports.rateDeal = (req, res) => {
-  // ================================== Validation Tests ============================================
-  // Check if the deal is closed, if the session user is part of the deal, if the rate is a valid number, and if it wasn't yet rated
+  // =============================== Validation Tests =================================
+  // Check if the deal is closed, if the session user is part of the deal, if the rate 
+  // is a valid number, and if it wasn't yet rated
 
   DealUser.findAll({
     where: { dealId: req.params.id },
@@ -267,8 +281,8 @@ exports.rateDeal = (req, res) => {
       ) {
         res.redirect("/user/deals/closed");
       } else {
-        // ================================== End of Validation Tests ============================================
-        // ========================================= DB Update ===================================================
+        // =========================== End of Validation Tests =============================
+        // ================================== DB Update ====================================
         DealUser.update(
           { rate: Number(req.body.rate) },
           {
@@ -303,8 +317,11 @@ exports.rateDeal = (req, res) => {
   });
 };
 
+// 7. Manage the communication line between the deal parties ==============================
+
 exports.dealChat = (req, res) => {
-  // ================================== Validation Tests ============================================
+  
+  // ============================== Validation Tests ======================================
   // Check if the session user is part of the deal
 
   DealUser.findAll({
@@ -317,8 +334,8 @@ exports.dealChat = (req, res) => {
     if (dealUsers.indexOf(req.session.user.id) === -1) {
       res.redirect("/user/deals/closed");
     } else {
-      // ================================== End of Validation Tests ============================================
-
+      // ========================== End of Validation Tests ================================
+      // Get the history of messages sent between the two users
       MessageUser.findAll({
         where: {
           userId: dealUsers[0],
@@ -335,7 +352,6 @@ exports.dealChat = (req, res) => {
           messageUserFinal.forEach((elemFinal) => {
             messagesArrayFinal.push(elemFinal.dataValues.messageId);
           });
-
           Message.findAll({
             where: [{ id: messagesArrayFinal }],
           }).then((messages) => {

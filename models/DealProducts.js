@@ -12,6 +12,4 @@ DealProduct.belongsTo(Deal);
 Product.hasMany(DealProduct);
 DealProduct.belongsTo(Product);
 
-// DealProduct.sync({force: true});
-
 module.exports = DealProduct

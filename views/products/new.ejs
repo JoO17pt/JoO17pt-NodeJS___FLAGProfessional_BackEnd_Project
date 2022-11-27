@@ -22,15 +22,17 @@
             name="title"
             type="text"
             placeholder="Title"
+            required
           /><br />
           <input
             class="form-control"
             name="description"
             type="text"
             placeholder="Description"
+            required
           /><br />
-          <select class="form-select" aria-label="Default select example" name="category">
-            <option selected>Category</option>
+          <select class="form-select" aria-label="Default select example" name="category" required>
+            <option value="" selected>Category</option>
             <% categories.forEach(category => {%>
             <option value="<%=category.dataValues.id%>"><%=category.dataValues.title%></option>
             <%})%>

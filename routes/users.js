@@ -1,3 +1,5 @@
+// 1. Variables Declaration =================================================================
+
 const express = require('express');
 const router = express.Router();
 
@@ -5,6 +7,8 @@ const upload = require("../middlewares/uploadPicture");
 const sessionInit = require("../middlewares/sessionInit");
 
 const {register, login, logout, profile, update, products, dealsReceived, dealsSent, dealsClosed, dealsCanceled} = require('../controllers/UserController');
+
+// 2. Set Routes ===========================================================================
 
 router.get("/register", register);
 router.post("/register", upload.single('picture'), register)

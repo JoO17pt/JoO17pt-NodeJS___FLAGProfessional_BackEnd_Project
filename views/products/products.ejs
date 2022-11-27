@@ -8,11 +8,11 @@
     <br />
     <br />
 
-    <nav class="navbar navbar-dark navbar-expand-lg bg-dark">
+    <nav id="prodNav" class="navbar navbar-dark navbar-expand-lg bg-dark">
       <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
           <ul class="navbar-nav">
-            
+
             <li class="nav-item dropdown">
               <a id="dropDownTitle" catId="" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Categories
@@ -38,55 +38,54 @@
               </ul>
             </li>
 
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button id="searchButton" class="btn btn-outline-light" type="submit">Search</button>
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button id="searchButton" class="btn btn-outline-light" type="submit">Search</button>
           </ul>
         </div>
       </div>
     </nav>
 
     <br />
-    <% products.forEach(user => {user.dataValues.products.forEach(product=> {%>
-
-    <div class="card mb-4" style="width: 90%; margin: auto">
-      <div class="row g-0">
-        <div class="col-md-3">
-          <img src="http://localhost:4000/productPics/<%=product.picture == null ? "no_image.png": product.picture.trim()%>" class="img-fluid rounded-start" alt="..." style="max-width: 250px"/>
-        </div>
-        <div class="col-md-7">
-          <div class="card-body">
-            <h5 class="card-title"><%= product.title %></h5>
-            <p class="card-text">
-              <strong>Description: </strong><%= product.description %>
-            </p>
-            <p class="card-text">
-              <strong>Category: </strong><%=
+    <div class="row prodView">
+      <% products.forEach(product1 => {product1.dataValues.products.forEach(product=> {if(user == undefined || user.id !== product.userId){%>
+      <div class="row">
+        <div class="card mb-4" style="width: 95%; margin: auto;">
+          <div class="row g-0">
+            <div class="col-md-3">
+              <img src="http://localhost:4000/productPics/<%=product.picture == null ? "no_image.png": product.picture.trim()%>" class="img-fluid rounded-start" alt="..." style="max-width: 250px" />
+            </div>
+            <div class="col-md-7">
+              <div class="card-body">
+                <h5 class="card-title"><%= product.title %></h5>
+                <p class="card-text">
+                  <strong>Description: </strong><%= product.description %>
+                </p>
+                <p class="card-text">
+                  <strong>Category: </strong><%=
               product.dataValues.category.dataValues.title %>
-            </p>
-            <p class="card-text">
-              <strong>Owner: </strong><%= user.dataValues.name %>
-            </p>
-            <p class="card-text">
-              <small class="text-muted"
-                >Updated at: <%= product.updatedAt %></small
-              >
-            </p>
+                </p>
+                <p class="card-text">
+                  <strong>Owner: </strong><%= product1.dataValues.name %><%if(product1.dataValues.rate !== null){%> [Rate: <%=product1.dataValues.rate%>]<%}%>
+                </p>
+                <p class="card-text">
+                  <small class="text-muted">Updated at: <%= product.updatedAt %></small>
+                </p>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <form action="/deal/<%=product1.dataValues.id%>" method="GET">
+                <button type="submit" class="btn btn-dark btn-block addRemoveButton">Propose Deal</button><br>
+              </form>
+            </div>
           </div>
         </div>
-        <div class="col-md-2">
-          <form action="/deal/<%=user.dataValues.id%>" method="GET">
-            <button type="submit" class="btn btn-dark btn-block addRemoveButton">Propose Deal</button><br>
-        </form>
-        </div>
       </div>
+      <% }})}) %>
     </div>
-
-    <% })}) %>
   </div>
   <%- include('../partials/footer.ejs') %>
 
   <script>
-
     const submitButton = document.querySelector("#searchButton");
 
     const catDropdown = document.querySelectorAll(".catDropdown");
@@ -100,7 +99,7 @@
     const inputSearch = document.querySelector("input");
 
     catDropdown.forEach(cat => {
-      cat.addEventListener("click", e=> {
+      cat.addEventListener("click", e => {
         e.preventDefault();
         dropDownTitle.innerText = e.target.innerText;
         dropDownTitle.setAttribute("catId", Number(e.target.id));
@@ -108,7 +107,7 @@
     })
 
     distDropdown.forEach(dist => {
-      dist.addEventListener("click", e=> {
+      dist.addEventListener("click", e => {
         e.preventDefault();
         distDropDownTitle.innerText = e.target.innerText;
 
@@ -117,12 +116,12 @@
           console.log(position.coords.longitude);
           distDropDownTitle.setAttribute("distQuerry", `lat=${position.coords.latitude}&lng=${position.coords.longitude}&dst=${e.target.innerText}`);
         }
-        
+
         const failureCallBack = (err) => {
           console.log(err);
         }
-        
-        if(window.navigator) {
+
+        if (window.navigator) {
           window.navigator.geolocation.getCurrentPosition(
             successCallBack,
             failureCallBack
@@ -131,38 +130,37 @@
       })
     })
 
-    submitButton.addEventListener("click", e=> {
+    submitButton.addEventListener("click", e => {
       if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
         window.location = "http://localhost:4000/product";
-        
+
         // CATEGORY
-        }else if (inputSearch.value.trim() == "" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
-          window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}`;
-        
+      } else if (inputSearch.value.trim() == "" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
+        window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}`;
+
         // SEARCH
-        } else if (dropDownTitle.innerText.trim() == "Categories" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
-          window.location = `http://localhost:4000/product?search=${inputSearch.value}`;
+      } else if (dropDownTitle.innerText.trim() == "Categories" && distDropDownTitle.innerText.trim() == "Near Me (km)") {
+        window.location = `http://localhost:4000/product?search=${inputSearch.value}`;
 
         // DISTANCE
-        } else if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "") {
-          window.location = `http://localhost:4000/product?${distDropDownTitle.getAttribute("distQuerry")}`;
-        
+      } else if (dropDownTitle.innerText.trim() == "Categories" && inputSearch.value.trim() == "") {
+        window.location = `http://localhost:4000/product?${distDropDownTitle.getAttribute("distQuerry")}`;
+
         // CATEGORY & SEARCH
-        } else if (distDropDownTitle.innerText.trim() == "Near Me (km)") {
-          window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}`;
-        
+      } else if (distDropDownTitle.innerText.trim() == "Near Me (km)") {
+        window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}`;
+
         // CATEGORY & DISTANCE
-        } else if (inputSearch.value.trim() == "") {
-          window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}&${distDropDownTitle.getAttribute("distQuerry")}`;
-         
+      } else if (inputSearch.value.trim() == "") {
+        window.location = `http://localhost:4000/product?category=${dropDownTitle.getAttribute("catId")}&${distDropDownTitle.getAttribute("distQuerry")}`;
+
         // SEARCH & DISTANCE
-        } else if (dropDownTitle.innerText.trim() == "Categories") {
-          window.location = `http://localhost:4000/product?search=${inputSearch.value}&${distDropDownTitle.getAttribute("distQuerry")}`;
+      } else if (dropDownTitle.innerText.trim() == "Categories") {
+        window.location = `http://localhost:4000/product?search=${inputSearch.value}&${distDropDownTitle.getAttribute("distQuerry")}`;
 
         // SEARCH & DISTANCE & CATEGORY
-        } else {
-          window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}&${distDropDownTitle.getAttribute("distQuerry")}`;
-        }
-      });
-
+      } else {
+        window.location = `http://localhost:4000/product?search=${inputSearch.value}&category=${dropDownTitle.getAttribute("catId")}&${distDropDownTitle.getAttribute("distQuerry")}`;
+      }
+    });
   </script>

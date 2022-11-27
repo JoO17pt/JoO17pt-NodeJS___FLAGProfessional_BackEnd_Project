@@ -11,3 +11,52 @@ hr {
     right: 10px;
     top: 10px;
 }
+
+.picSquare {
+    height: 30vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.pic {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.picRow {
+    gap: 40px;
+    margin-bottom: 10px;
+    opacity: 0.2;
+}
+
+.picBoard {
+    align-content: center;
+}
+
+.homeWording {
+    position:absolute;
+    top: 40vh;
+    left: 30vw;
+    width: 40vw;
+    font-weight: 700;
+    font-size:xx-large;
+    text-align: center;
+}
+
+.prodView{
+    height: 80vh;
+    overflow: scroll;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-content: flex-start;
+}
+
+.prodView2{
+    height: 70vh;
+    overflow: scroll;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-content: flex-start;
+}

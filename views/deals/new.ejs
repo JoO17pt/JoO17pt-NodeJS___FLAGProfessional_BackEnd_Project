@@ -13,6 +13,7 @@
             <h2>My Products</h2>
           </div>
           <br />
+          <div class="row prodView2">
           <% products.forEach(product => {
         if (product.userId == user.id) {
       %>
@@ -48,13 +49,15 @@
 
           <% }}) %>
         </div>
+        </div>
       </div>
       <div class="col-md-6">
         <div class="card mt-5">
           <div class="card-header">
-            <h2><%= otherUser.name %></h2>
+            <h2><%= otherUser.name %> Products</h2>
           </div>
-          <hr />
+          <br />
+          <div class="row prodView2">
           <% products.forEach(product => {
         if (product.userId !== user.id) {
       %>
@@ -89,6 +92,7 @@
           </div>
 
           <% }}) %>
+        </div>
         </div>
       </div>
     </div>

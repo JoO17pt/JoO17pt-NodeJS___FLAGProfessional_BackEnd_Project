@@ -1,6 +1,8 @@
+// 1. Variables Declaration =================================================================
+
 const multer  = require('multer');
 
-// Generate random name for files =====================================================
+// 2. Generate random name for files ========================================================
 
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -14,7 +16,7 @@ function generateString(length) {
     return result;
 }
 
-// Manage the file storage =========================================================
+// 3. Manage the file storage ===============================================================
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

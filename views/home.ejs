@@ -3,34 +3,32 @@
 <body>
   <%- include('partials/navbar.ejs') %>
 
-  <div class="container">
-    <hr />
-    <hr />
-    <hr />
-    <h1>Home Page</h1>
-    <hr />
-
-    <div class="row">
-      <div class="col-md-4 picSquare">Teste</div>
-      <div class="col-md-4">Teste</div>
-      <div class="col-md-4">Teste</div>
+  <div class="container picBoard">
+    <br />
+    <br />
+    <br />
+    <div class="row justify-content-center picRow">
+      <div class="col-md-3 picSquare">
+        <img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>">
+      </div>
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
     </div>
-    <div class="row">
-      <div class="col-md-4">Teste</div>
-      <div class="col-md-4">Teste</div>
-      <div class="col-md-4">Teste</div>
+    <div class="row justify-content-center picRow">
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
     </div>
-    <div class="row">
-      <div class="col-md-4">Teste</div>
-      <div class="col-md-4">Teste</div>
-      <div class="col-md-4">Teste</div>
+    <div class="row justify-content-center picRow">
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
+      <div class="col-md-3 picSquare"><img class="pic" src="http://localhost:4000/productPics/<%=pictures[Math.floor(Math.random() * ((pictures.length-1) - 0 + 1)) + 0]%>"></div>
     </div>
-
-
-
-    <% if (user !== undefined) { %>
-    <h2>Welcome <%= user.name %></h2>
-    <% } %>
   </div>
 
-<%- include('partials/footer.ejs') %>
+  <div class="homeWording">
+    <p>Ready to change all your old stuff for things you could actually use?</p>
+    <a href="http://localhost:4000/product"><button class="btn btn-dark btn-block">Get Started!</button></a>
+  </div>
+
+  <%- include('partials/footer.ejs') %>

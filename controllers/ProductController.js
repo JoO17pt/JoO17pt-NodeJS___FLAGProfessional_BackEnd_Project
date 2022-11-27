@@ -1,10 +1,13 @@
-const express = require("express");
+// 1. Variables Declaration =================================================================
+
 const { Sequelize, Op } = require("sequelize");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const DealProduct = require("../models/DealProducts");
 const Deal = require("../models/Deal");
 const User = require("../models/User");
+
+// 2. Manage new product creation ===========================================================
 
 exports.newProduct = (req, res) => {
   switch (req.method) {
@@ -34,12 +37,14 @@ exports.newProduct = (req, res) => {
             res.redirect("/user/" + req.session.user.id + "/products");
           })
           .catch((err) => {
-            res.send("Importação falhou");
+            res.redirect("/product/new");
           });
         break;
       }
   }
 };
+
+// 3. Manage make a product disabled ======================================================
 
 exports.delProduct = (req, res) => {
   Product.findByPk(req.params.id)
@@ -47,8 +52,12 @@ exports.delProduct = (req, res) => {
       if (product.userId !== req.session.user.id || product === undefined) {
         res.redirect("/");
       } else {
+
+        // Classify the product as unavailable on products table
         Product.update({ active: false }, { where: { id: product.id } }).then(
           () => {
+
+            // Cancel the active deals where the product were included
             DealProduct.findAll({
               where: { productId: req.params.id },
             }).then((deals) => {
@@ -65,7 +74,7 @@ exports.delProduct = (req, res) => {
                   },
                 }
               ).then(() => {
-                res.send("Remoção concluída");
+                res.redirect(`/user/${req.session.user.id}/products?active=1`);
               });
             });
           }
@@ -77,6 +86,8 @@ exports.delProduct = (req, res) => {
     });
 };
 
+// 4. Manage the display of the available products ========================================
+
 exports.showProducts = (req, res) => {
   const haversine = `(
       6371 * acos(
@@ -87,7 +98,7 @@ exports.showProducts = (req, res) => {
       )
     )`;
 
-  // NONE
+  // No filter
   if (
     req.query.search === undefined &&
     req.query.category === undefined &&
@@ -98,9 +109,11 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: Category,
         where: { active: true },
       },
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -119,12 +132,14 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
           where: { id: req.query.category },
         },
         where: { active: true },
       },
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -143,6 +158,7 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
         },
@@ -151,6 +167,7 @@ exports.showProducts = (req, res) => {
           { title: { [Op.like]: "%" + req.query.search + "%" } },
         ],
       },
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -167,6 +184,7 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
         },
@@ -176,6 +194,7 @@ exports.showProducts = (req, res) => {
         include: [[Sequelize.literal(haversine), "distance"]],
       },
       having: Sequelize.literal(`distance <= ${req.query.dst}`),
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -193,6 +212,7 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
           where: { id: req.query.category },
@@ -202,6 +222,7 @@ exports.showProducts = (req, res) => {
           { title: { [Op.like]: "%" + req.query.search + "%" } },
         ],
       },
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -215,6 +236,7 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
           where: { id: req.query.category },
@@ -225,6 +247,7 @@ exports.showProducts = (req, res) => {
         include: [[Sequelize.literal(haversine), "distance"]],
       },
       having: Sequelize.literal(`distance <= ${req.query.dst}`),
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -238,6 +261,7 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
         },
@@ -250,6 +274,7 @@ exports.showProducts = (req, res) => {
         include: [[Sequelize.literal(haversine), "distance"]],
       },
       having: Sequelize.literal(`distance <= ${req.query.dst}`),
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -269,6 +294,7 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: {
           model: Category,
           where: { id: req.query.category },
@@ -282,6 +308,7 @@ exports.showProducts = (req, res) => {
         include: [[Sequelize.literal(haversine), "distance"]],
       },
       having: Sequelize.literal(`distance <= ${req.query.dst}`),
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
@@ -293,9 +320,11 @@ exports.showProducts = (req, res) => {
     User.findAll({
       include: {
         model: Product,
+        order: [["title", "ASC"]],
         include: Category,
         where: { active: true },
       },
+      order: [["name", "ASC"]],
     }).then((products) => {
       res.render("products/products", {
         products: products,
